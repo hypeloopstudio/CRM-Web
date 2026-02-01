@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server"
-import { createFlowPayment } from "@/lib/flow"
+
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
 export async function POST(request: Request) {
+  // Import dinámico para evitar errores durante el build
+  const { createFlowPayment } = await import("@/lib/flow")
+
   try {
     const { orderId, subject, amount, email, customerData } = await request.json()
 

@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server"
-import { getFlowPaymentStatus } from "@/lib/flow"
-import { sendOrderConfirmationEmail } from "@/lib/actions/shop"
-import prisma from "@/lib/prisma"
 
 // Umbral para considerar cliente como "Alto Ticket" (top 20% aproximado)
 const ALTO_TICKET_THRESHOLD = 100000 // $100.000 CLP
 
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
+
 export async function POST(request: Request) {
+  // Import dinámico para evitar errores durante el build
+  const { getFlowPaymentStatus } = await import("@/lib/flow")
+  const { sendOrderConfirmationEmail } = await import("@/lib/actions/shop")
+  const prisma = (await import("@/lib/prisma")).default
   console.log("📥 Webhook Flow recibido")
   
   try {
