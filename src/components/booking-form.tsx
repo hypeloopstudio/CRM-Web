@@ -192,7 +192,7 @@ export function BookingForm() {
         telefono: formData.telefono,
         email: formData.email || undefined,
         servicioId: formData.servicioId,
-        fecha: date,
+        fecha: date as Date,
         hora: formData.hora,
         precio: selectedServicio?.precio || 0,
       })
