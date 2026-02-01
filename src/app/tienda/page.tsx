@@ -17,7 +17,7 @@ export default async function TiendaPage() {
       <ShopHeader />
       
       {/* Hero Banner with Products - Hershesons Style */}
-      <ShopHero />
+      <ShopHero productos={productos} />
 
       {/* Products Section */}
       <section className="py-16 bg-white">

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getFlowPaymentStatus } from "@/lib/flow"
+import { sendOrderConfirmationEmail } from "@/lib/actions/shop"
 import prisma from "@/lib/prisma"
 
 // Umbral para considerar cliente como "Alto Ticket"
@@ -85,6 +86,10 @@ export async function POST(request: Request) {
             },
           })
         }
+
+        // 4. Enviar email de confirmación (fallback)
+        console.log("📧 Enviando email de confirmación (fallback)...")
+        await sendOrderConfirmationEmail(pedido.id)
       }
     }
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getFlowPaymentStatus } from "@/lib/flow"
+import { sendOrderConfirmationEmail } from "@/lib/actions/shop"
 import prisma from "@/lib/prisma"
 
 // Umbral para considerar cliente como "Alto Ticket" (top 20% aproximado)
@@ -103,6 +104,15 @@ export async function POST(request: Request) {
             },
           })
           console.log(`👤 Cliente actualizado: segmento=${nuevoSegmento}, totalGastado=${gastoTotal}`)
+        }
+
+        // 4. Enviar email de confirmación
+        console.log("📧 Enviando email de confirmación...")
+        const emailResult = await sendOrderConfirmationEmail(pedido.id)
+        if (emailResult.success) {
+          console.log("✅ Email enviado exitosamente")
+        } else {
+          console.error("⚠️ Error enviando email:", emailResult.error)
         }
 
         console.log("✅ Procesamiento completo del pedido")

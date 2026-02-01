@@ -166,6 +166,8 @@ export default function CheckoutPage() {
           cantidad: item.cantidad,
           precio: item.precio,
         })),
+        metodoPago: "transferencia",
+        envio: envio,
       })
       
       setOrderId(pedido.id)
@@ -197,6 +199,7 @@ export default function CheckoutPage() {
           precio: item.precio,
         })),
         metodoPago: "flow",
+        envio: envio,
       })
 
       // Guardar orderId para la página de resultado
@@ -543,10 +546,7 @@ export default function CheckoutPage() {
                 {step === 2 && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                     <button 
-                      onClick={() => {
-                        setStep(1)
-                        setClientSecret("")
-                      }}
+                      onClick={() => setStep(1)}
                       className="flex items-center gap-2 text-gray-500 hover:text-amber-600 transition-colors"
                     >
                       <ChevronLeft className="w-4 h-4" />
