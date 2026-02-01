@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 45 30% 98%;
+    --foreground: 30 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 30 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 10% 15%;
+    --primary: 43 74% 49%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 45 30% 95%;
+    --secondary-foreground: 30 10% 15%;
+    --muted: 45 20% 92%;
+    --muted-foreground: 30 10% 45%;
+    --accent: 43 74% 49%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 45 20% 88%;
+    --input: 45 20% 88%;
+    --ring: 43 74% 49%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Gold gradient text */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #F4E4BC 50%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Elegant button styles */
+.btn-gold {
+  @apply bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-medium px-8 py-3 rounded-full hover:from-amber-600 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl;
+}
+
+.btn-outline-gold {
+  @apply border-2 border-amber-500 text-amber-600 font-medium px-8 py-3 rounded-full hover:bg-amber-500 hover:text-white transition-all;
+}
+
+/* Section dividers */
+.section-divider {
+  @apply w-24 h-1 bg-gradient-to-r from-amber-400 to-yellow-400 mx-auto rounded-full;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-1;
+}
+
+/* Image overlay */
+.image-overlay {
+  @apply absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent;
+}
+
+/* Custom form validation styles */
+input:invalid:not(:placeholder-shown),
+input:invalid:focus {
+  @apply border-red-300 focus:border-red-400 focus:ring-red-100;
+}
+
+input:valid:not(:placeholder-shown) {
+  @apply border-green-300 focus:border-green-400;
+}
+
+/* Custom validation message tooltip */
+input:invalid:not(:placeholder-shown)::after {
+  content: attr(data-error);
+}
+
+/* Style native validation bubbles */
+input::-webkit-validation-bubble-message {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: white;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+input::-webkit-validation-bubble-arrow {
+  background: #1f2937;
+}
+
+input::-webkit-validation-bubble-heading {
+  display: none;
+}
+
+/* Firefox validation styles */
+input::-moz-focus-inner {
+  border: 0;
+}
+
+/* Form input focus styles */
+.form-input-elegant {
+  @apply w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-200;
+  @apply focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100;
+  @apply hover:border-gray-300;
+}
+
+.form-input-elegant:invalid:not(:placeholder-shown) {
+  @apply border-red-300 focus:border-red-400 focus:ring-red-100;
+}
+
+.form-input-elegant:valid:not(:placeholder-shown) {
+  @apply border-green-300 focus:border-green-400 focus:ring-green-100;
+}

@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== AUTENTICACIÓN ====================
+
+enum Role {
+  ADMIN
+  RECEPCION
+  MARKETING
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String
+  image         String?
+  role          Role      @default(RECEPCION)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ==================== CLIENTES ====================
+
+enum SegmentoCliente {
+  NUEVO
+  FRECUENTE
+  INACTIVO
+  ALTO_TICKET
+}
+
+model Cliente {
+  id              String           @id @default(cuid())
+  nombre          String
+  telefono        String?
+  email           String?          @unique
+  ultimoServicio  DateTime?
+  totalGastado    Float            @default(0)
+  visitasCount    Int              @default(0)
+  segmento        SegmentoCliente  @default(NUEVO)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  reservas        Reserva[]
+  pedidos         Pedido[]
+  historialServicios HistorialServicio[]
+}
+
+model HistorialServicio {
+  id          String   @id @default(cuid())
+  clienteId   String
+  servicioId  String
+  fecha       DateTime @default(now())
+  precio      Float
+  notas       String?
+
+  cliente     Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  servicio    Servicio @relation(fields: [servicioId], references: [id])
+}
+
+// ==================== SERVICIOS ====================
+
+model Categoria {
+  id          String     @id @default(cuid())
+  nombre      String     @unique
+  descripcion String?
+  color       String     @default("#6366f1")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  servicios   Servicio[]
+}
+
+model Servicio {
+  id                String    @id @default(cuid())
+  nombre            String
+  precio            Float
+  duracionMinutos   Int       @default(30)
+  imagen            String?
+  activo            Boolean   @default(true)
+  categoriaId       String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  categoria         Categoria @relation(fields: [categoriaId], references: [id])
+  reservas          Reserva[]
+  historialServicios HistorialServicio[]
+}
+
+// ==================== RESERVAS ====================
+
+enum EstadoReserva {
+  NUEVO
+  CONFIRMADO
+  EN_PROCESO
+  LISTO
+  FINALIZADO
+  CANCELADO
+}
+
+model Reserva {
+  id          String        @id @default(cuid())
+  clienteId   String
+  servicioId  String
+  fecha       DateTime
+  horaInicio  String
+  horaFin     String?
+  precio      Float
+  estado      EstadoReserva @default(NUEVO)
+  notas       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  cliente     Cliente       @relation(fields: [clienteId], references: [id])
+  servicio    Servicio      @relation(fields: [servicioId], references: [id])
+}
+
+// ==================== PRODUCTOS / PEDIDOS ====================
+
+model Producto {
+  id          String   @id @default(cuid())
+  nombre      String
+  descripcion String?
+  precio      Float
+  stock       Int      @default(0)
+  imagen      String?
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  itemsPedido ItemPedido[]
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  PROCESANDO
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+}
+
+model Pedido {
+  id          String       @id @default(cuid())
+  clienteId   String
+  total       Float
+  estado      EstadoPedido @default(PENDIENTE)
+  direccion   String?
+  notas       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  cliente     Cliente      @relation(fields: [clienteId], references: [id])
+  items       ItemPedido[]
+}
+
+model ItemPedido {
+  id         String   @id @default(cuid())
+  pedidoId   String
+  productoId String
+  cantidad   Int
+  precio     Float
+
+  pedido     Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  producto   Producto @relation(fields: [productoId], references: [id])
+}
+
+// ==================== CONFIGURACIÓN ====================
+
+model Configuracion {
+  id                  String   @id @default(cuid())
+  nombreNegocio       String   @default("Mi Peluquería")
+  logo                String?
+  telefono            String?
+  email               String?
+  direccion           String?
+  horarioApertura     String   @default("09:00")
+  horarioCierre       String   @default("20:00")
+  diasLaborales       String[] @default(["lunes", "martes", "miercoles", "jueves", "viernes", "sabado"])
+  servicioPresencial  Boolean  @default(true)
+  servicioDomicilio   Boolean  @default(false)
+  moneda              String   @default("CLP")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
