@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server"
 
-// Umbral para considerar cliente como "Alto Ticket"
+export const dynamic = "force-dynamic"
+export const fetchCache = "force-no-store"
+
 const ALTO_TICKET_THRESHOLD = 100000
 
-export const dynamic = "force-dynamic"
-export const runtime = "nodejs"
-
 export async function POST(request: Request) {
-  // Import dinámico para evitar errores durante el build
   const { getFlowPaymentStatus } = await import("@/lib/flow")
   const { sendOrderConfirmationEmail } = await import("@/lib/actions/shop")
-  const prisma = (await import("@/lib/prisma")).default
+  const { default: prisma } = await import("@/lib/prisma")
 
   try {
     const { token } = await request.json()
@@ -21,7 +19,6 @@ export async function POST(request: Request) {
 
     const paymentStatus = await getFlowPaymentStatus(token)
 
-    // Si el pago fue exitoso, procesar el pedido (fallback del webhook)
     if (paymentStatus.status === 2) {
       const pedido = await prisma.pedido.findFirst({
         where: { id: paymentStatus.commerceOrder },
@@ -35,17 +32,14 @@ export async function POST(request: Request) {
         },
       })
 
-      // Solo procesar si el pedido está pendiente (no fue procesado por webhook)
       if (pedido && pedido.estado === "PENDIENTE") {
         console.log("🔄 Procesando pedido desde verificación (fallback)")
 
-        // 1. Actualizar estado del pedido
         await prisma.pedido.update({
           where: { id: pedido.id },
           data: { estado: "PROCESANDO" },
         })
 
-        // 2. Descontar stock
         for (const item of pedido.items) {
           if (item.producto) {
             const nuevoStock = Math.max(0, item.producto.stock - item.cantidad)
@@ -56,7 +50,6 @@ export async function POST(request: Request) {
           }
         }
 
-        // 3. Actualizar segmento del cliente
         if (pedido.cliente) {
           const totalGastado = await prisma.pedido.aggregate({
             where: {
@@ -92,7 +85,6 @@ export async function POST(request: Request) {
           })
         }
 
-        // 4. Enviar email de confirmación (fallback)
         console.log("📧 Enviando email de confirmación (fallback)...")
         await sendOrderConfirmationEmail(pedido.id)
       }

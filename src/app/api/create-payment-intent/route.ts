@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server"
 
 export const dynamic = "force-dynamic"
-export const runtime = "nodejs"
+export const fetchCache = "force-no-store"
 
 export async function POST(request: Request) {
-  // Import dinámico para evitar errores durante el build
   const { createFlowPayment } = await import("@/lib/flow")
 
   try {
